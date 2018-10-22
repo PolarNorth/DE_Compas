@@ -1,0 +1,70 @@
+#:kivy 1.1.0
+
+<MainScreen>:
+    name: "input"
+    inp_x0 : inp_x0
+    inp_y0 : inp_y0
+    inp_n : inp_n
+    inp_xn : inp_xn
+    submit_btn : submit_btn
+    graph_box : graph_box
+    title_label : title_label
+    BoxLayout:
+        orientation: "horizontal"
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_x : 0.5
+
+            Label:
+                id: title_label
+                text: "F18 DE programming assignment\nInitial value problem solver"
+                size_hint_y : None
+                size_y : 50
+            GridLayout:
+                cols : 2
+                row_default_height : 60
+                height :self.minimum_height
+                size_hint_y : None
+
+                Label:
+                    text : "x0:"
+                    width : 60
+                    size_hint_x : None
+                    # size_hint_y : None
+                TextInput:
+                    id : inp_x0
+
+                Label:
+                    text : "y0:"
+                    width : 60
+                    size_hint_x : None
+                    # size_hint_y : None
+                TextInput:
+                    id : inp_y0
+
+                Label:
+                    text : "n:"
+                    width : 60
+                    size_hint_x : None
+                    # size_hint_y : None
+                TextInput:
+                    id: inp_n
+
+                Label:
+                    text : "xn:"
+                    width : 60
+                    size_hint_x : None
+                    # size_hint_y : None
+                TextInput:
+                    id: inp_xn
+
+            Button:
+                size_y : 30
+                size_hint_y : None
+                text: "Solve"
+                id: submit_btn
+            Button:
+                text: "Space for DE selection"
+        BoxLayout:
+            orientation : "vertical"
+            id : graph_box
