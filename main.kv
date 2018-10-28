@@ -1,23 +1,25 @@
 #:kivy 1.1.0
 
 <MainScreen>:
-    name: "input"
     inp_x0 : inp_x0
     inp_y0 : inp_y0
     inp_n : inp_n
     inp_xn : inp_xn
     submit_btn : submit_btn
-    graph_box : graph_box
+    # graph_box : graph_box
     title_label : title_label
+    plot_box_widget : plot_box_widget
     BoxLayout:
         orientation: "horizontal"
         BoxLayout:
             orientation: "vertical"
-            size_hint_x : 0.5
+            # size_hint_x : 0.5
+            size_hint_x : None
+            width : 250
 
             Label:
                 id: title_label
-                text: "F18 DE programming assignment\nInitial value problem solver"
+                text: "DE F18 Compas"
                 size_hint_y : None
                 size_y : 50
             GridLayout:
@@ -65,6 +67,41 @@
                 id: submit_btn
             Button:
                 text: "Space for DE selection"
-        BoxLayout:
-            orientation : "vertical"
-            id : graph_box
+        PlotBox:
+            id : plot_box_widget
+            
+
+<PlotBox>:
+    equation_lbl : equation_lbl
+    figure_box : figure_box
+    show_diff_equation_btn : show_diff_equation_btn
+    show_numerical_solution_btn : show_numerical_solution_btn
+    show_exact_solution_btn : show_exact_solution_btn
+    show_truncation_error_btn : show_truncation_error_btn
+    orientation : "vertical"
+    Label:
+        id : equation_lbl
+        size_hint_y : None
+        height : 40
+        text : ":)"
+    BoxLayout:
+        id : figure_box
+        orientation: "vertical"
+        Label:
+            text : "Plot will be here"
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y : None
+        height : 40
+        Button:
+            id : show_diff_equation_btn
+            text: "y'"
+        Button:
+            id : show_numerical_solution_btn
+            text: "Numerical solution"
+        Button:
+            id : show_exact_solution_btn
+            text: "Exact solution"
+        Button:
+            id : show_truncation_error_btn
+            text: "Global truncation error"
