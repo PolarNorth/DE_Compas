@@ -4,7 +4,7 @@ import math
 
 
 class NumericalMethod:
-    """Interface for numerical methods
+    """Base class for numerical methods
     """
     _eps = 9
 
