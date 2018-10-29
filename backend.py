@@ -2,19 +2,40 @@
 """
 import math
 
-_eps = 9
 
 class NumericalMethod:
     """Interface for numerical methods
     """
-    @classmethod
-    def solve(cls, dif_eq, x0, y0, h, xb):
-        pass
+    _eps = 9
 
-    @classmethod
-    def _truncation_error(dif_eq, x0, y0, h, xb):
-        pass
+    def solve(self, dif_eq, x0, y0, h, xb):
+        print("x0={}, y0={}, h={}, xb={}".format(str(x0), str(y0), str(h), str(xb)))
+        x_solution, y_solution = self._get_numerical_solution(dif_eq, x0, y0, h, xb)
+        x_exact, y_exact = self._get_exact_solution(dif_eq, x0, h, xb)
+        x_error, y_error = self._get_truncation_error(x_solution, y_solution, y_exact)
+        return Solution(x_solution, y_solution, x_error, y_error, x_exact, y_exact, dif_eq.get_str_name(), self.get_method_name())
 
+    def _get_truncation_error(self, x, y_solution, y_exact):
+        y_error = []
+        for idx in range(0,len(x)):
+            y_error.append(y_exact[idx] - y_solution[idx])
+        return x, y_error
+    
+    def _get_exact_solution(self, dif_eq, x0, h, xb):
+        x_curr = x0
+        x = [x_curr]
+        y = [dif_eq.exact_solution(x_curr)]
+        while x_curr < xb:
+            x_curr += h
+            x.append(x_curr)
+            y.append(dif_eq.exact_solution(x_curr))
+        return x, y
+    
+    def _get_numerical_solution(self, dif_eq, x0, y0, h, xb):
+        pass
+    
+    def get_method_name(self):
+        pass
 
 
 class DifferentialEquation:
@@ -25,20 +46,20 @@ class DifferentialEquation:
         self.name = name
         self.exact_solution = exact_solution
 
-    def function(x):
+    def function(self, x):
         return self.function(x)
     
-    def get_str_name():
+    def get_str_name(self):
         return self.name
     
-    def analytical_soluton(x):
+    def analytical_soluton(self, x):
         return self.exact_solution(x)
 
 class Solution:
     """Class representing solution of differential equation
        using numerical method
     """
-    def __init__(self, x_solution, y_solution, x_error, y_error, x_exact, y_exact, str_name):
+    def __init__(self, x_solution, y_solution, x_error, y_error, x_exact, y_exact, str_name, str_method_name):
         self.x_solution = x_solution
         self.y_solution = y_solution
         self.x_error = x_error
@@ -46,10 +67,10 @@ class Solution:
         self.x_exact = x_exact
         self.y_exact = y_exact
         self.str_name = str_name
+        self.str_method_name = str_method_name    
 
 class EulerMethod (NumericalMethod):
-    @classmethod
-    def solve(cls, diff_eq, y0, x0, xb, h):
+    def _get_numerical_solution(self, diff_eq, x0, y0, h, xb):
         f = diff_eq.function
         x = [x0]
         y = [y0]
@@ -59,15 +80,17 @@ class EulerMethod (NumericalMethod):
             # print("curr_y = {} + {} * {}".format(curr_y,h,f(curr_x, curr_y)))
             curr_y = curr_y + h * f(curr_x, curr_y)
             curr_x = curr_x + h
-            curr_x = round(curr_x, cls._eps)
+            curr_x = round(curr_x, self._eps)
             x.append(curr_x)
             y.append(curr_y)
             # print("{} -> {};".format(curr_x, curr_y))
         return x,y
+        
+    def get_method_name(self):
+        return "Euler"
 
 class ImprovedEulerMethod (NumericalMethod):
-    @classmethod
-    def solve(cls, diff_eq, y0, x0, xb, h):
+    def _get_numerical_solution(self, diff_eq, x0, y0, h, xb):
         f = diff_eq.function
         x = [x0]
         y = [y0]
@@ -77,16 +100,17 @@ class ImprovedEulerMethod (NumericalMethod):
             # print("curr_y = {} + {} * {}".format(curr_y,h,f(curr_x, curr_y)))
             curr_y = curr_y + h * f(curr_x + h/2, curr_y + h/2 * f(curr_x, curr_y))
             curr_x = curr_x + h
-            curr_x = round(curr_x, _eps)
+            curr_x = round(curr_x, self._eps)
             x.append(curr_x)
             y.append(curr_y)
             # print("{} -> {};".format(curr_x, curr_y))
-        # return x,y
-        return Solution(x, y, [], [], [], [], diff_eq.name)
+        return x,y
+        
+    def get_method_name(self):
+        return "Improved Euler"
 
-class RungeKuttaMehod (NumericalMethod):
-    @classmethod
-    def solve(cls, diff_eq, y0, x0, xb, h):
+class RungeKuttaMethod (NumericalMethod):
+    def _get_numerical_solution(self, diff_eq, x0, y0, h, xb):
         f = diff_eq.function
         x = [x0]
         y = [y0]
@@ -101,12 +125,22 @@ class RungeKuttaMehod (NumericalMethod):
             delta_y = h * (k1 + 2*k2 + 2*k3 + k4) / 6
             curr_y = curr_y + delta_y
             curr_x = curr_x + h
-            curr_x = round(curr_x, cls._eps)
+            curr_x = round(curr_x, self._eps)
             x.append(curr_x)
             y.append(curr_y)
             # print("{} -> {};".format(curr_x, curr_y))
         return x,y
+        
+    def get_method_name(self):
+        return "Runge-Kutta"
+    
 
 equations = [
     DifferentialEquation(lambda x,y : x*x - 3*x*y + y*y - 3*y, "test", (lambda x : x + 5))
 ]
+
+numerical_methods = {
+    "Euler" : EulerMethod(),
+    "Improved Euler" : ImprovedEulerMethod(),
+    "Runge-Kutta" : RungeKuttaMethod(),
+}
