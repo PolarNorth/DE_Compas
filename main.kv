@@ -57,6 +57,30 @@
                 TextInput:
                     id: inp_h
 
+                # Label:
+                #     text : "N1:"
+                #     width : 60
+                #     size_hint_x : None
+                #     # size_hint_y : None
+                # TextInput:
+                #     id: inp_h
+
+                # Label:
+                #     text : "N2:"
+                #     width : 60
+                #     size_hint_x : None
+                #     # size_hint_y : None
+                # TextInput:
+                #     id: inp_h
+
+                # Label:
+                #     text : "K:"
+                #     width : 60
+                #     size_hint_x : None
+                #     # size_hint_y : None
+                # TextInput:
+                #     id: inp_h
+                
                 Label:
                     text : "xn:"
                     width : 60
@@ -66,7 +90,8 @@
                     id: inp_xn
             Label:
                 text : "Numerical methods:"
-                width : 40
+                size_hint_y : None
+                height : 40
             
             BoxLayout:
                 orientation: "horizontal"
@@ -101,6 +126,7 @@
                 size_hint_y : None
                 text: "Solve"
                 id: submit_btn
+
             Button:
                 text: "Space for DE selection"
         PlotBox:

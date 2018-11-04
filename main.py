@@ -1,3 +1,4 @@
+from kivy.config import Config
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
@@ -12,6 +13,7 @@ from kivy.properties import (
 )
 import matplotlib.pyplot as plt
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+from kivy.garden.matplotlib.backend_kivyagg import NavigationToolbar2Kivy
 from backend import *
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -39,10 +41,20 @@ class MainScreen (Screen):
         super(Screen, self).__init__(*args, **kwargs)
         self.current_de = equations[0]
         # self.plot_box_widget.set_plots(ImprovedEulerMethod.solve(self.current_de, 2, 0, 1, 0.1))
-        self.inp_x0.text = '0'
-        self.inp_y0.text = '2'
-        self.inp_xn.text = '1'
-        self.inp_h.text =  '0.1'
+        default_values = {
+            'x0' : 1,
+            'y0' : 3,
+            'xn' : 18.2,
+            'h' : 0.1,
+        }
+        # self.inp_x0.text = '0'
+        # self.inp_y0.text = '2'
+        # self.inp_xn.text = '1'
+        # self.inp_h.text =  '0.1'
+        self.inp_x0.text = str(default_values['x0'])
+        self.inp_y0.text = str(default_values['y0'])
+        self.inp_xn.text = str(default_values['xn'])
+        self.inp_h.text = str(default_values['h'])
         self.submit_btn.on_release = self.submit
     
     def submit(self):
@@ -61,14 +73,19 @@ class PlotBox (BoxLayout):
     show_truncation_error_btn= ObjectProperty(None)
     figure_box = ObjectProperty(None)
 
-    def __init__(self, *args, **kwargs):
-        super(BoxLayout, self).__init__(*args, **kwargs)
-        # Plots
-        self.numerical_solution_plot = None
-        self.exact_solution_plot = None
-        self.truncation_error_plot = None
-        # Solution
-        # self.solution = None
+    numerical_solution_plot = None
+    exact_solution_plot = None
+    truncation_error_plot = None
+
+
+    # def __init__(self, *args, **kwargs):
+    #     super(BoxLayout, self).__init__(*args, **kwargs)
+    #     # Plots
+    #     self.numerical_solution_plot = None
+    #     self.exact_solution_plot = None
+    #     self.truncation_error_plot = None
+    #     # Solution
+    #     # self.solution = None
     
     def set_plots(self, ivp, euler, ieuler, runge):
         # self.plot_coordinates = (solution.x_solution, solution.y_solution)
@@ -88,7 +105,8 @@ class PlotBox (BoxLayout):
             solutions.append(numerical_methods['Runge-Kutta'].solve(*ivp))
 
         self.numerical_solution_plot = Figure()
-        FigureCanvas(self.numerical_solution_plot)
+        # print(matplotlib.is_interactive())
+        # FigureCanvasAgg(self.numerical_solution_plot)
         axis = self.numerical_solution_plot.add_subplot(111)
         for solution in solutions:
             axis.plot(solution.x_solution, solution.y_solution, label=solution.str_method_name)
@@ -97,7 +115,7 @@ class PlotBox (BoxLayout):
 
 
         self.exact_solution_plot = Figure()
-        FigureCanvas(self.exact_solution_plot)
+        # FigureCanvasAgg(self.exact_solution_plot)
         axis = self.exact_solution_plot.add_subplot(111)
         for solution in solutions:
             axis.plot(solution.x_exact, solution.y_exact, label=solution.str_method_name)
@@ -106,7 +124,7 @@ class PlotBox (BoxLayout):
 
 
         self.truncation_error_plot = Figure()
-        FigureCanvas(self.truncation_error_plot)
+        # FigureCanvasAgg(self.truncation_error_plot)
         axis = self.truncation_error_plot.add_subplot(111)
         for solution in solutions:
             axis.plot(solution.x_error, solution.y_error, label=solution.str_method_name)
@@ -120,22 +138,34 @@ class PlotBox (BoxLayout):
             self.equation_lbl.text = "Choose at least 1 method"
     
     def show_truncation_error_plot (self):
-        self.figure_box.clear_widgets()
-        # self.figure_box.add_widget(self.numerical_solution_plot)
-        self.figure_box.add_widget(FigureCanvasKivyAgg(self.truncation_error_plot))
+        # self.figure_box.clear_widgets()
+        # # self.figure_box.add_widget(self.numerical_solution_plot)
+        # self.figure_box.add_widget(FigureCanvasKivyAgg(self.truncation_error_plot))
+        self.select_plot(self.truncation_error_plot)
 
     def show_exact_solution_plot (self):
-        self.figure_box.clear_widgets()
-        # self.figure_box.add_widget(self.exact_solution_plot)
-        self.figure_box.add_widget(FigureCanvasKivyAgg(self.exact_solution_plot))
+        # self.figure_box.clear_widgets()
+        # # self.figure_box.add_widget(self.exact_solution_plot)
+        # self.figure_box.add_widget(FigureCanvasKivyAgg(self.exact_solution_plot))
+        self.select_plot(self.exact_solution_plot)
 
     def show_numerical_solution_plot (self):
+        # self.figure_box.clear_widgets()
+        # # self.figure_box.add_widget(self.numerical_solution_plot)
+        # self.figure_box.add_widget(FigureCanvasKivyAgg(self.numerical_solution_plot))
+        self.select_plot(self.numerical_solution_plot)
+    
+    def select_plot(self, plot):
         self.figure_box.clear_widgets()
-        # self.figure_box.add_widget(self.numerical_solution_plot)
-        self.figure_box.add_widget(FigureCanvasKivyAgg(self.numerical_solution_plot))
+        canvas = FigureCanvasKivyAgg(plot)
+        self.figure_box.add_widget(canvas)
+        self.figure_box.add_widget(NavigationToolbar2Kivy(canvas).actionbar)
 
 
 
 if __name__ == '__main__':
+    # matplotlib.interactive(True)
+    # matplotlib.pyplot.ion()from kivy.config import Config
+    Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
     MainApp().run()
 
