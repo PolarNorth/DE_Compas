@@ -8,28 +8,24 @@ class NumericalMethod:
     """
     _eps = 9
 
-    def solve(self, dif_eq, x0, y0, h, xb):
-        print("x0={}, y0={}, h={}, xb={}".format(str(x0), str(y0), str(h), str(xb)))
+    def solve(self, dif_eq, x0, y0, h, xb): # TODO : Probably it is better to calculate x inside this function and use in calls
+        # print("x0={}, y0={}, h={}, xb={}".format(str(x0), str(y0), str(h), str(xb)))
         x_solution, y_solution = self._get_numerical_solution(dif_eq, x0, y0, h, xb)
-        x_exact, y_exact = self._get_exact_solution(dif_eq, x0, h, xb)
+        x_exact, y_exact = self._get_exact_solution(dif_eq, x_solution)
         x_error, y_error = self._get_truncation_error(x_solution, y_solution, y_exact)
         return Solution(x_solution, y_solution, x_error, y_error, x_exact, y_exact, dif_eq.get_str_name(), self.get_method_name())
 
     def _get_truncation_error(self, x, y_solution, y_exact):
         y_error = []
         for idx in range(0,len(x)):
-            y_error.append(y_exact[idx] - y_solution[idx])
+            y_error.append(abs(y_exact[idx] - y_solution[idx]))
         return x, y_error
     
-    def _get_exact_solution(self, dif_eq, x0, h, xb):
-        x_curr = x0
-        x = [x_curr]
-        y = [dif_eq.exact_solution(x_curr)]
-        while x_curr < xb:
-            x_curr += h
-            x.append(x_curr)
-            y.append(dif_eq.exact_solution(x_curr))
-        return x, y
+    def _get_exact_solution(self, dif_eq, x_solution):
+        y = []
+        for x in x_solution:
+            y.append(dif_eq.exact_solution(x))
+        return x_solution, y
     
     def _get_numerical_solution(self, dif_eq, x0, y0, h, xb):
         pass
