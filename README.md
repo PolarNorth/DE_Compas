@@ -1,7 +1,7 @@
 # DE_Compas
 ## Differential Equations F18 COMPutational ASsingment
 
-This application implements Euler, Improved Euler and Runge-Kutta numerical methods for solving initial value problem fot first order differential equations in general explicit form.
+This application implements Euler, Improved Euler and Runge-Kutta numerical methods for solving initial value problem for first order differential equations in general explicit form.
 
 ## Technologies used
 
@@ -31,7 +31,7 @@ To run application, execute `main.py` in the Python environment
 
 ## Description
 
-This application implements Euler, Improved Euler and Runge-Kutta numerical methods for solving initial value problem fot first order differential equations in general explicit form.
+This application implements Euler, Improved Euler and Runge-Kutta numerical methods for solving initial value problem for first order differential equations in general explicit form.
 
 Application consists of GUI part and several backend classes that are described in the UML diagram below.
 
