@@ -24,11 +24,21 @@ class MainApp (App):
         sm.add_widget(MainScreen())
         return sm
 
+class SettingsTextInput (TextInput):
+    pass
+
+class SettingsLabel (Label):
+    pass
+
 class MainScreen (Screen):
     inp_x0 = ObjectProperty(None)
     inp_y0 = ObjectProperty(None)
-    inp_h = ObjectProperty(None)
+    # inp_h = ObjectProperty(None)
+    inp_n1 = ObjectProperty(None)
+    inp_n2 = ObjectProperty(None)
+    inp_k = ObjectProperty(None)
     inp_xn = ObjectProperty(None)
+    inp_n = ObjectProperty(None)
     submit_btn = ObjectProperty(None)
     title_label = ObjectProperty(None)
     plot_box_widget = ObjectProperty(None)
@@ -45,22 +55,27 @@ class MainScreen (Screen):
             'x0' : 1,
             'y0' : 3,
             'xn' : 18.2,
-            'h' : 0.1,
+            'N' : 100,
+            'N1' : 100,
+            'N2' : 1000,
+            'k' : 10,
         }
-        # self.inp_x0.text = '0'
-        # self.inp_y0.text = '2'
-        # self.inp_xn.text = '1'
-        # self.inp_h.text =  '0.1'
         self.inp_x0.text = str(default_values['x0'])
         self.inp_y0.text = str(default_values['y0'])
         self.inp_xn.text = str(default_values['xn'])
-        self.inp_h.text = str(default_values['h'])
+        self.inp_n.text = str(default_values['N'])
+        self.inp_n1.text = str(default_values['N1'])
+        self.inp_n2.text = str(default_values['N2'])
+        self.inp_k.text = str(default_values['k'])
+        
         self.submit_btn.on_release = self.submit
     
     def submit(self):
         self.plot_box_widget.equation_lbl.text = "Calculating..."
-        ivp = (self.current_de, float(self.inp_x0.text), float(self.inp_y0.text), float(self.inp_h.text), float(self.inp_xn.text))
-        self.plot_box_widget.set_plots(ivp, self.euler_btn.active, self.ieuler_btn.active, self.runge_btn.active)
+        step = (float(self.inp_xn.text) - float(self.inp_x0.text))/float(self.inp_n.text)
+        ivp = (self.current_de, float(self.inp_x0.text), float(self.inp_y0.text), step, float(self.inp_xn.text))
+        div_range = (int(self.inp_n1.text), int(self.inp_n2.text), int(self.inp_k.text))
+        self.plot_box_widget.set_plots(ivp, div_range, self.euler_btn.active, self.ieuler_btn.active, self.runge_btn.active)
         # self.plot_box_widget.show_plots()
         self.plot_box_widget.show_numerical_solution_plot()
 
@@ -69,31 +84,16 @@ class PlotBox (BoxLayout):
     equation_lbl = ObjectProperty(None)
     # show_diff_equation_btn = ObjectProperty(None)
     show_numerical_solution_btn = ObjectProperty(None)
-    show_exact_solution_btn = ObjectProperty(None)
+    show_total_error_btn = ObjectProperty(None)
     show_truncation_error_btn= ObjectProperty(None)
     figure_box = ObjectProperty(None)
 
     numerical_solution_plot = None
-    exact_solution_plot = None
-    truncation_error_plot = None
+    total_truncation_error_plot = None
+    local_truncation_error_plot = None
 
 
-    # def __init__(self, *args, **kwargs):
-    #     super(BoxLayout, self).__init__(*args, **kwargs)
-    #     # Plots
-    #     self.numerical_solution_plot = None
-    #     self.exact_solution_plot = None
-    #     self.truncation_error_plot = None
-    #     # Solution
-    #     # self.solution = None
-    
-    def set_plots(self, ivp, euler, ieuler, runge):
-        # self.plot_coordinates = (solution.x_solution, solution.y_solution)
-    #     self.solution = solution
-
-    # def show_plots(self):
-    #     # initial_plot = ([0,1],[0,1])
-    #     # Plot
+    def set_plots(self, ivp, div_range, euler, ieuler, runge):  # TODO : Don't forget new argument div_range
 
         solutions = []
 
@@ -104,32 +104,53 @@ class PlotBox (BoxLayout):
         if runge:
             solutions.append(numerical_methods['Runge-Kutta'].solve(*ivp))
 
+        # Numerical solution
         self.numerical_solution_plot = Figure()
-        # print(matplotlib.is_interactive())
-        # FigureCanvasAgg(self.numerical_solution_plot)
         axis = self.numerical_solution_plot.add_subplot(111)
+        axis.plot(solutions[0].x_exact, solutions[0].y_exact, label='Exact')
         for solution in solutions:
             axis.plot(solution.x_solution, solution.y_solution, label=solution.str_method_name)
             axis.legend()
-            # print(solution.str_method_name)
 
-
-        self.exact_solution_plot = Figure()
-        # FigureCanvasAgg(self.exact_solution_plot)
-        axis = self.exact_solution_plot.add_subplot(111)
-        for solution in solutions:
-            axis.plot(solution.x_exact, solution.y_exact, label=solution.str_method_name)
-            axis.legend()
-            # print(solution.str_method_name)
-
-
-        self.truncation_error_plot = Figure()
-        # FigureCanvasAgg(self.truncation_error_plot)
-        axis = self.truncation_error_plot.add_subplot(111)
+        # Truncation error of the solution
+        self.local_truncation_error_plot = Figure()
+        axis = self.local_truncation_error_plot.add_subplot(111)
         for solution in solutions:
             axis.plot(solution.x_error, solution.y_error, label=solution.str_method_name)
             axis.legend()
-            # print(solution.str_method_name)
+
+        # Total truncation error
+        # Calculate max errors for methods with different number of iterations
+        self.total_truncation_error_plot = Figure()
+        axis = self.total_truncation_error_plot.add_subplot(111)
+        er_x = []
+        er_y = {name : [] for name in numerical_methods.keys()}
+        iter_step = (div_range[1] - div_range[0]) / div_range[2] 
+        curr_n_iterations = div_range[0]
+        # for n_iterations in range(0, div_range[2]):    # TODO
+        while curr_n_iterations < div_range[1]:
+            current_ivp = list(ivp)
+            step = (ivp[4] - ivp[1]) / curr_n_iterations
+            # print ("Step = " + str(step))
+            current_ivp[-2] = step
+            er_x.append(step)
+            if euler:
+                # solutions.append(numerical_methods['Euler'].solve(*current_ivp))
+
+                er_y['Euler'].append(max(numerical_methods['Euler'].solve(*current_ivp).y_error))
+            if ieuler:
+                # solutions.append(numerical_methods['Improved Euler'].solve(*current_ivp))
+                er_y['Improved Euler'].append(max(numerical_methods['Improved Euler'].solve(*current_ivp).y_error))
+            if runge:
+                # solutions.append(numerical_methods['Runge-Kutta'].solve(*current_ivp))
+                er_y['Runge-Kutta'].append(max(numerical_methods['Runge-Kutta'].solve(*current_ivp).y_error))
+            curr_n_iterations += iter_step
+        
+        for name, y in er_y.items():
+            if not y:
+                continue
+            axis.plot(er_x, y, label=name)
+            axis.legend()
 
         # Label on top
         if len(solutions) > 0:
@@ -138,34 +159,25 @@ class PlotBox (BoxLayout):
             self.equation_lbl.text = "Choose at least 1 method"
     
     def show_truncation_error_plot (self):
-        # self.figure_box.clear_widgets()
-        # # self.figure_box.add_widget(self.numerical_solution_plot)
-        # self.figure_box.add_widget(FigureCanvasKivyAgg(self.truncation_error_plot))
-        self.select_plot(self.truncation_error_plot)
+        self.select_plot(self.local_truncation_error_plot)
 
-    def show_exact_solution_plot (self):
-        # self.figure_box.clear_widgets()
-        # # self.figure_box.add_widget(self.exact_solution_plot)
-        # self.figure_box.add_widget(FigureCanvasKivyAgg(self.exact_solution_plot))
-        self.select_plot(self.exact_solution_plot)
+    def show_total_error_plot (self):
+        self.select_plot(self.total_truncation_error_plot)
 
     def show_numerical_solution_plot (self):
-        # self.figure_box.clear_widgets()
-        # # self.figure_box.add_widget(self.numerical_solution_plot)
-        # self.figure_box.add_widget(FigureCanvasKivyAgg(self.numerical_solution_plot))
         self.select_plot(self.numerical_solution_plot)
     
     def select_plot(self, plot):
+        if plot is None:
+            return
         self.figure_box.clear_widgets()
         canvas = FigureCanvasKivyAgg(plot)
         self.figure_box.add_widget(canvas)
         self.figure_box.add_widget(NavigationToolbar2Kivy(canvas).actionbar)
 
 
-
 if __name__ == '__main__':
     # matplotlib.interactive(True)
     # matplotlib.pyplot.ion()from kivy.config import Config
-    Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
     MainApp().run()
 

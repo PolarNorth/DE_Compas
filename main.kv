@@ -1,10 +1,23 @@
 #:kivy 1.1.0
+<SettingsTextInput>:
+    size_hint_y : None
+    height : 40
+
+<SettingsLabel>:
+    size_hint_x : None
+    width : 60
+    size_hint_y : None
+    height : 40
 
 <MainScreen>:
     inp_x0 : inp_x0
     inp_y0 : inp_y0
-    inp_h : inp_h
+    # inp_h : inp_h
+    inp_n1 : inp_n1
+    inp_n2 : inp_n2
+    inp_k : inp_k
     inp_xn : inp_xn
+    inp_n : inp_n
     submit_btn : submit_btn
     # graph_box : graph_box
     title_label : title_label
@@ -16,119 +29,116 @@
 
     BoxLayout:
         orientation: "horizontal"
-        BoxLayout:
-            orientation: "vertical"
-            # size_hint_x : 0.5
+        ScrollView:
+            size_hint_y : None
             size_hint_x : None
+            # size : self.size
             width : 250
-
-            Label:
-                id: title_label
-                text: "DE F18 Compas"
+            height : root.height
+            BoxLayout:
+                orientation: "vertical"
+                # size_hint_x : 0.5
+                size_hint_x : None
                 size_hint_y : None
-                height : 80
-            GridLayout:
-                cols : 2
-                row_default_height : 60
-                height :self.minimum_height
-                size_hint_y : None
+                height : self.minimum_height
+                width : 250
 
                 Label:
-                    text : "x0:"
-                    width : 60
-                    size_hint_x : None
-                    # size_hint_y : None
-                TextInput:
-                    id : inp_x0
+                    id: title_label
+                    text: "DE F18 Compas"
+                    size_hint_y : None
+                    height : 80
+                GridLayout:
+                    cols : 2
+                    # row_default_height : 60
+                    height :self.minimum_height
+                    size_hint_y : None
 
-                Label:
-                    text : "y0:"
-                    width : 60
-                    size_hint_x : None
-                    # size_hint_y : None
-                TextInput:
-                    id : inp_y0
+                    SettingsLabel:
+                        text : "x0:"
+                    SettingsTextInput:
+                        id : inp_x0
 
-                Label:
-                    text : "step:"
-                    width : 60
-                    size_hint_x : None
-                    # size_hint_y : None
-                TextInput:
-                    id: inp_h
+                    SettingsLabel:
+                        text : "y0:"
+                    SettingsTextInput:
+                        id : inp_y0
 
-                # Label:
-                #     text : "N1:"
-                #     width : 60
-                #     size_hint_x : None
-                #     # size_hint_y : None
-                # TextInput:
-                #     id: inp_h
+                    SettingsLabel:
+                        text : "N:"
+                    SettingsTextInput:
+                        id: inp_n
 
-                # Label:
-                #     text : "N2:"
-                #     width : 60
-                #     size_hint_x : None
-                #     # size_hint_y : None
-                # TextInput:
-                #     id: inp_h
-
-                # Label:
-                #     text : "K:"
-                #     width : 60
-                #     size_hint_x : None
-                #     # size_hint_y : None
-                # TextInput:
-                #     id: inp_h
+                    SettingsLabel:
+                        text : "xn:"
+                    SettingsTextInput:
+                        id: inp_xn
                 
                 Label:
-                    text : "xn:"
-                    width : 60
-                    size_hint_x : None
-                    # size_hint_y : None
-                TextInput:
-                    id: inp_xn
-            Label:
-                text : "Numerical methods:"
-                size_hint_y : None
-                height : 40
-            
-            BoxLayout:
-                orientation: "horizontal"
-                height : 40
-                size_hint_y : None
-                Label:
-                    text: "Euler"
-                CheckBox:
-                    size_hint_x : None
-                    id: euler_btn
-            BoxLayout:
-                orientation: "horizontal"
-                height : 40
-                size_hint_y : None
-                Label:
-                    text: "Improved Euler"
-                CheckBox:
-                    size_hint_x : None
-                    id: ieuler_btn
-            BoxLayout:
-                orientation: "horizontal"
-                height : 40
-                size_hint_y : None
-                Label:
-                    text: "Runge-Kutta"
-                CheckBox:
-                    size_hint_x : None
-                    id: runge_btn
+                    text : "Total approximation error"
+                    height : 50
+                    size_hint_y : None
 
-            Button:
-                height : 80
-                size_hint_y : None
-                text: "Solve"
-                id: submit_btn
+                GridLayout:
+                    cols : 2
+                    height :self.minimum_height
+                    size_hint_y : None
+                    SettingsLabel:
+                        text : "N1:"
+                    SettingsTextInput:
+                        id: inp_n1
 
-            Button:
-                text: "Space for DE selection"
+                    SettingsLabel:
+                        text : "N2:"
+                    SettingsTextInput:
+                        id: inp_n2
+
+                    SettingsLabel:
+                        text : "K:"
+                    SettingsTextInput:
+                        id: inp_k
+                    
+                Label:
+                    text : "Numerical methods:"
+                    size_hint_y : None
+                    height : 40
+
+                BoxLayout:
+                    orientation: "horizontal"
+                    height : 40
+                    size_hint_y : None
+                    Label:
+                        text: "Euler"
+                    CheckBox:
+                        size_hint_x : None
+                        id: euler_btn
+                BoxLayout:
+                    orientation: "horizontal"
+                    height : 40
+                    size_hint_y : None
+                    Label:
+                        text: "Improved Euler"
+                    CheckBox:
+                        size_hint_x : None
+                        id: ieuler_btn
+                BoxLayout:
+                    orientation: "horizontal"
+                    height : 40
+                    size_hint_y : None
+                    Label:
+                        text: "Runge-Kutta"
+                    CheckBox:
+                        size_hint_x : None
+                        id: runge_btn
+
+                Button:
+                    height : 80
+                    size_hint_y : None
+                    text: "Solve"
+                    id: submit_btn
+
+                # Button:
+                #     text: "Space for DE selection"
         PlotBox:
             id : plot_box_widget
             
@@ -138,7 +148,7 @@
     figure_box : figure_box
     # show_diff_equation_btn : show_diff_equation_btn
     show_numerical_solution_btn : show_numerical_solution_btn
-    show_exact_solution_btn : show_exact_solution_btn
+    show_total_error_btn : show_total_error_btn
     show_truncation_error_btn : show_truncation_error_btn
     orientation : "vertical"
     Label:
@@ -163,9 +173,9 @@
             on_release : root.show_numerical_solution_plot()
             text: "Numerical solution"
         Button:
-            id : show_exact_solution_btn
-            on_release : root.show_exact_solution_plot()
-            text: "Exact solution"
+            id : show_total_error_btn
+            on_release : root.show_total_error_plot()
+            text: "Total truncation error"
         Button:
             id : show_truncation_error_btn
             on_release : root.show_truncation_error_plot()
