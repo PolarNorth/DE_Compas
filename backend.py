@@ -133,7 +133,7 @@ class RungeKuttaMethod (NumericalMethod):
 
 equations = [
     # DifferentialEquation(lambda x,y : x*x - 3*x*y + y*y - 3*y, "test", (lambda x : x + 5)),
-    DifferentialEquation(lambda x,y : -x + y * (2*x + 1) / x, "-x + y(2x + 1)/x", (lambda x : x/2 + (5 * math.exp(2*x - 1) * x)/ 2))
+    DifferentialEquation(lambda x,y : -x + y * (2*x + 1) / x, "-x + y(2x + 1)/x", (lambda x : x * (1 + 5 * math.exp(2*x - 2)) / 2))
 ]
 
 numerical_methods = {
