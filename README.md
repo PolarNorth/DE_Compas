@@ -45,3 +45,4 @@ The equation that this application solves is described in the document together 
 
 [Link to the solution](docs/Differential_equation_solution.pdf)
 
+[Link to the repository](https://github.com/PolarNorth/DE_Compas)
