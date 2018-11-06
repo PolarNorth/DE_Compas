@@ -71,13 +71,23 @@ class MainScreen (Screen):
         self.submit_btn.on_release = self.submit
     
     def submit(self):
-        self.plot_box_widget.equation_lbl.text = "Calculating..."
-        step = (float(self.inp_xn.text) - float(self.inp_x0.text))/float(self.inp_n.text)
-        ivp = (self.current_de, float(self.inp_x0.text), float(self.inp_y0.text), step, float(self.inp_xn.text))
-        div_range = (int(self.inp_n1.text), int(self.inp_n2.text), int(self.inp_k.text))
-        self.plot_box_widget.set_plots(ivp, div_range, self.euler_btn.active, self.ieuler_btn.active, self.runge_btn.active)
-        # self.plot_box_widget.show_plots()
-        self.plot_box_widget.show_numerical_solution_plot()
+        try:
+            self.plot_box_widget.equation_lbl.text = "Calculating..."
+            step = (float(self.inp_xn.text) - float(self.inp_x0.text))/float(self.inp_n.text)
+
+            if step <= 0 or float(self.inp_xn.text) - float(self.inp_x0.text) < 0:
+                raise ValueError    # x0 < xn and step > 0
+            if int(self.inp_n1.text) <= 0 or int(self.inp_n2.text) <= 0 or int(self.inp_n1.text) >= int(self.inp_n2.text) or int(self.inp_k.text) <= 0:
+                raise ValueError    # Check n1, n2 and k
+
+            ivp = (self.current_de, float(self.inp_x0.text), float(self.inp_y0.text), step, float(self.inp_xn.text))
+            div_range = (int(self.inp_n1.text), int(self.inp_n2.text), int(self.inp_k.text))
+            self.plot_box_widget.set_plots(ivp, div_range, self.euler_btn.active, self.ieuler_btn.active, self.runge_btn.active)
+            # self.plot_box_widget.show_plots()
+            self.plot_box_widget.show_numerical_solution_plot()
+        except ValueError:
+            self.plot_box_widget.equation_lbl.text = "Incorrect input format"
+
 
 
 class PlotBox (BoxLayout):
@@ -104,6 +114,13 @@ class PlotBox (BoxLayout):
         if runge:
             solutions.append(numerical_methods['Runge-Kutta'].solve(*ivp))
 
+        # Check if there at least 1 solution
+        if len(solutions) > 0:
+            self.equation_lbl.text = solutions[0].str_name
+        else:
+            self.equation_lbl.text = "Choose at least 1 method"
+            return
+        
         # Numerical solution
         self.numerical_solution_plot = Figure()
         axis = self.numerical_solution_plot.add_subplot(111)
@@ -118,7 +135,7 @@ class PlotBox (BoxLayout):
         for solution in solutions:
             axis.plot(solution.x_error, solution.y_error, label=solution.str_method_name)
             axis.legend()
-
+        
         # Total truncation error
         # Calculate max errors for methods with different number of iterations
         self.total_truncation_error_plot = Figure()
@@ -152,11 +169,6 @@ class PlotBox (BoxLayout):
             axis.plot(er_x, y, label=name)
             axis.legend()
 
-        # Label on top
-        if len(solutions) > 0:
-            self.equation_lbl.text = solutions[0].str_name
-        else:
-            self.equation_lbl.text = "Choose at least 1 method"
     
     def show_truncation_error_plot (self):
         self.select_plot(self.local_truncation_error_plot)
